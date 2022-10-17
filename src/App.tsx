@@ -1,26 +1,63 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Loader from "./components/loader";
+import { Status } from "./types/common.types";
+import ErrorMessage from "./components/errorMessage";
+import GeneratedTable from "./components/candidatesTable";
+import useCandidatesForm from "./hooks/useCandidatesForm";
 
-function App() {
+export default function App() {
+  const form = useCandidatesForm();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-container">
+      <div className="filter-container">
+        <label>
+          Search by Name
+          <input
+            name="name"
+            type="search"
+            value={form.state.name}
+            className="search-input"
+            onChange={form.onchange.text}
+          />
+        </label>
+
+        <label>
+          Search by Position applied
+          <input
+            type="search"
+            name="position"
+            className="text-input"
+            value={form.state.position}
+            onChange={form.onchange.text}
+          />
+        </label>
+
+        {Object.keys(Status).map((status, idx) => (
+          <label className="status-filter" key={status}>
+            {status}
+            <input
+              key={status}
+              name={status}
+              value={status}
+              type="checkbox"
+              checked={form.state.statuses[idx]}
+              onChange={() => form.onchange.checkbox(idx)}
+            />
+          </label>
+        ))}
+
+        <button className="button" onClick={form.reset}>
+          Refresh
+        </button>
+      </div>
+
+      {form.error ? (
+        <ErrorMessage error={form.error} />
+      ) : form.loading ? (
+        <Loader />
+      ) : (
+        <GeneratedTable data={form.data} />
+      )}
     </div>
   );
 }
-
-export default App;
